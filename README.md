@@ -1,14 +1,17 @@
 # React + Vite
 
-![Zidio login ](https://github.com/user-attachments/assets/d2f1e764-2f10-4399-a831-27fda861e87d)
+![signup](https://github.com/user-attachments/assets/39237f50-0c27-4b07-8187-0eaf6d48a886)
+
 This is the login page which have sigup and login page 
 
 
-![Zidio Sashboard](https://github.com/user-attachments/assets/f48f06f1-4f6c-4416-98e0-ef7b331901ba)
+![dashboard](https://github.com/user-attachments/assets/b870c3fb-6d78-43f3-8ba6-a954fbb33b30)
+
 This is Dashboard which apear after when you login or signup
 
 
-![Zidio Task](https://github.com/user-attachments/assets/f64ecf24-1df2-4c23-ab41-34adc5a0b277)
+![tasks](https://github.com/user-attachments/assets/c08b822d-3ec7-4f45-9930-af282a3ba02a)
+
 This is the page which shows all the task which is given 
 
 
