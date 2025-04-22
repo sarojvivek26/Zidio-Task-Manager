@@ -4,8 +4,7 @@ import { user } from "../../assets/data";
 const initialState = {
   user: localStorage.getItem("userInfo")
     ? JSON.parse(localStorage.getItem("userInfo"))
-    : user,
-
+    : null,
   isSidebarOpen: false,
 };
 
@@ -17,8 +16,9 @@ const authSlice = createSlice({
       state.user = action.payload;
       localStorage.setItem("userInfo", JSON.stringify(action.payload));
     },
-    logout: (state, action) => {
+    logout: (state) => {
       state.user = null;
+      state.isSidebarOpen = false;
       localStorage.removeItem("userInfo");
     },
     setOpenSidebar: (state, action) => {

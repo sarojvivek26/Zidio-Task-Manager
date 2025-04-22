@@ -99,13 +99,13 @@ const TaskDetails = () => {
       <Tabs tabs={TABS} setSelected={setSelected}>
         {selected === 0 ? (
           <>
-            <div className='w-full flex flex-col md:flex-row gap-5 2xl:gap-8 bg-white shadow-md p-8 overflow-y-auto'>
+            <div className='w-full flex flex-col md:flex-row gap-5 2xl:gap-8 bg-gray-200 shadow-md p-8 overflow-y-auto'>
               {/* LEFT */}
               <div className='w-full md:w-1/2 space-y-8'>
                 <div className='flex items-center gap-5'>
                   <div
                     className={clsx(
-                      "flex gap-1 items-center text-base font-semibold px-3 py-1 rounded-full",
+                      "flex gap-1 items-center text-base font-semibold px-3 py-1 rounded-full text-black",
                       PRIOTITYSTYELS[task?.priority],
                       bgColor[task?.priority]
                     )}
@@ -125,7 +125,7 @@ const TaskDetails = () => {
                   </div>
                 </div>
 
-                <p className='text-gray-500'>
+                <p className='text-black'>
                   Created At: {new Date(task?.date).toDateString()}
                 </p>
 

@@ -15,15 +15,17 @@ import Users from "./pages/Users";
 import Dashboard from "./pages/dashboard";
 import { setOpenSidebar } from "./redux/slices/authSlice";
 import Settings from "./pages/Settings";
+import Chat from "./components/Chat";
+import ChatList from "./components/ChatList";
+import Meeting from "./components/Meeting";
 
 function Layout() {
   const { user } = useSelector((state) => state.auth);
-
   const location = useLocation();
 
   return user ? (
-    <div className='w-full h-screen flex flex-col md:flex-row'>
-      <div className='w-1/5 h-screen bg-white sticky top-0 hidden md:block'>
+    <div className='w-full h-screen flex flex-col md:flex-row bg-dark'>
+      <div className='w-1/5 h-screen bg-dark-lighter sticky top-0 hidden md:block'>
         <Sidebar />
       </div>
 
@@ -67,16 +69,16 @@ const MobileSidebar = () => {
           <div
             ref={(node) => (mobileMenuRef.current = node)}
             className={clsx(
-              "md:hidden w-full h-full bg-black/40 transition-all duration-700 transform ",
+              "md:hidden w-full h-full bg-black/40 transition-all duration-700 transform",
               isSidebarOpen ? "translate-x-0" : "translate-x-full"
             )}
             onClick={() => closeSidebar()}
           >
-            <div className='bg-white w-3/4 h-full'>
+            <div className='bg-dark-lighter w-3/4 h-full text-white'>
               <div className='w-full flex justify-end px-5 mt-5'>
                 <button
                   onClick={() => closeSidebar()}
-                  className='flex justify-end items-end'
+                  className='flex justify-end items-end text-gray-400 hover:text-white'
                 >
                   <IoClose size={25} />
                 </button>
@@ -95,7 +97,7 @@ const MobileSidebar = () => {
 
 function App() {
   return (
-    <main className='w-full min-h-screen bg-[#f3f4f6] '>
+    <main className='w-full min-h-screen bg-dark text-white'>
       <Routes>
         <Route element={<Layout />}>
           <Route index path='/' element={<Navigate to='/dashboard' />} />
@@ -108,6 +110,9 @@ function App() {
           <Route path='/trashed' element={<Trash />} />
           <Route path='/task/:id' element={<TaskDetails />} />
           <Route path='/settings' element={<Settings />} />
+          <Route path='/chat' element={<ChatList />} />
+          <Route path='/chat/:chatId' element={<Chat />} />
+          <Route path='/meetings/:meetingId' element={<Meeting />} />
         </Route>
 
         <Route path='/log-in' element={<Login />} />

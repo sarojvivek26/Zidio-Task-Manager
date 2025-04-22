@@ -7,17 +7,33 @@ import { useSelector, useDispatch } from "react-redux";
 import { setCredentials, logout } from "../redux/slices/authSlice";
 import { toast } from "sonner";
 import logo from "../assets/logo zidio.webp";
+import ForgotPassword from "../components/ForgotPassword";
+
+// Mock user database
+const MOCK_USERS = [
+  {
+    id: 1,
+    name: 'Test User',
+    email: 'test@example.com',
+    password: 'password123',
+    role: 'user',
+    isActive: true,
+  }
+];
 
 const Login = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setError,
   } = useForm();
 
   const navigate = useNavigate();
@@ -25,36 +41,69 @@ const Login = () => {
   const submitHandler = async (data) => {
     try {
       setIsLoading(true);
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       if (isLogin) {
-        // Mock login logic
-        const mockUser = {
-          id: 1,
-          name: data.email.split('@')[0], // Use part of email as name for login
-          email: data.email,
-          role: "user",
-          isActive: true,
-        };
+        // Login validation
+        const foundUser = MOCK_USERS.find(u => u.email === data.email);
+        
+        if (!foundUser) {
+          setError('email', {
+            type: 'manual',
+            message: 'No account found with this email'
+          });
+          toast.error('Invalid email or password');
+          return;
+        }
 
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (foundUser.password !== data.password) {
+          setError('password', {
+            type: 'manual',
+            message: 'Incorrect password'
+          });
+          toast.error('Invalid email or password');
+          return;
+        }
 
-        dispatch(setCredentials(mockUser));
+        if (!foundUser.isActive) {
+          toast.error('Your account is inactive. Please contact support.');
+          return;
+        }
+
+        // Successful login
+        dispatch(setCredentials(foundUser));
         toast.success('Login successful!');
         navigate('/dashboard');
       } else {
-        // Mock signup logic
-        const mockUser = {
-          id: 1,
+        // Signup validation
+        const existingUser = MOCK_USERS.find(u => u.email === data.email);
+        
+        if (existingUser) {
+          setError('email', {
+            type: 'manual',
+            message: 'An account with this email already exists'
+          });
+          toast.error('Email already registered');
+          return;
+        }
+
+        // Create new user
+        const newUser = {
+          id: MOCK_USERS.length + 1,
           name: data.name,
           email: data.email,
+          password: data.password,
           role: "user",
           isActive: true,
         };
 
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Add to mock database
+        MOCK_USERS.push(newUser);
 
-        dispatch(setCredentials(mockUser));
+        // Login the new user
+        dispatch(setCredentials(newUser));
         toast.success('Account created successfully!');
         navigate('/dashboard');
       }
@@ -71,127 +120,193 @@ const Login = () => {
   }, [user]);
 
   const toggleForm = () => {
-    setIsLogin(!isLogin);
-    reset();
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsLogin(!isLogin);
+      reset();
+      setIsAnimating(false);
+    }, 500);
   };
 
   return (
-    <div className='w-full min-h-screen flex items-center justify-center flex-col lg:flex-row bg-[#f3f4f6]'>
-      <div className='w-full md:w-auto flex gap-0 md:gap-40 flex-col md:flex-row items-center justify-center'>
-        {/* left side */}
-        <div className='h-full w-full lg:w-2/3 flex flex-col items-center justify-center'>
-          <div className='w-full md:max-w-lg 2xl:max-w-3xl flex flex-col items-center justify-center gap-5 md:gap-y-10 2xl:-mt-20'>
-            <span className='flex gap-1 py-1 px-3 border rounded-full text-sm md:text-base bordergray-300 text-gray-600'>
-              Manage all your task in one place!
-            </span>
-            <p className='flex flex-col gap-0 md:gap-4 text-4xl md:text-6xl 2xl:text-7xl font-black text-center text-blue-700'>
-              <span>Zidio</span>
-              <span>Task Manager</span>
-            </p>
-
-            <div className='cell'>
-              <div className='circle rotate-in-up-left'></div>
-            </div>
-          </div>
-        </div>
-
-        {/* right side */}
-        <div className='w-full md:w-1/3 p-4 md:p-1 flex flex-col justify-center items-center'>
+    <div className='w-full min-h-screen flex items-center justify-center bg-[#1a1a2e]'>
+      <div className='w-full max-w-[1400px] h-screen flex items-center justify-center'>
+        {/* Login/Signup Form */}
+        <div className='w-full md:w-[400px] p-4 md:p-0'>
           <form
             onSubmit={handleSubmit(submitHandler)}
-            className='form-container w-full md:w-[400px] flex flex-col gap-y-8 bg-white px-10 pt-14 pb-14'
+            className='w-full flex flex-col gap-y-6 bg-[#232342] rounded-2xl px-8 pt-10 pb-8 transition-all duration-500 ease-in-out'
+            style={{
+              opacity: isAnimating ? '0' : '1',
+              transform: isAnimating ? 'scale(0.98) translateY(10px)' : 'scale(1) translateY(0)',
+            }}
           >
-            <div className=''>
-              <div className='flex flex-col items-center gap-2'>
-                {isLogin ? (
-                  <>
-                    <img src={logo} alt="Zidio Logo" className='h-12 md:h-16' />
-                    <p className='text-2xl font-bold text-blue-600'>Task Manager</p>
-                  </>
-                ) : (
-                  <p className='text-blue-600 text-3xl font-bold text-center'>Create Account</p>
-                )}
-              </div>
-              <p className='text-center text-base text-gray-700'>
-                {isLogin ? 'Keep all your credentials safe.' : 'Join us to manage your tasks.'}
+            <div className='flex flex-col items-center gap-2 mb-4'>
+              <img 
+                src={logo} 
+                alt="Zidio Logo" 
+                className='h-16 w-auto mb-2 transition-all duration-500 ease-in-out' 
+                style={{
+                  transform: isAnimating ? 'rotate(360deg) scale(0.8)' : 'rotate(0) scale(1)',
+                  filter: 'brightness(0) invert(1)',
+                }}
+              />
+              <h1 className='text-3xl font-bold text-white transition-all duration-500 ease-in-out'
+                  style={{
+                    opacity: isAnimating ? '0' : '1',
+                    transform: isAnimating ? 'translateY(-10px)' : 'translateY(0)',
+                  }}>
+                {isLogin ? 'Welcome Back' : 'Create Account'}
+              </h1>
+              <p className='text-sm text-gray-400 transition-all duration-500 ease-in-out'
+                 style={{
+                   opacity: isAnimating ? '0' : '1',
+                   transform: isAnimating ? 'translateY(-10px)' : 'translateY(0)',
+                 }}>
+                {isLogin ? 'Enter your credentials to continue' : 'Fill in your details to get started'}
               </p>
             </div>
 
-            <div className='flex flex-col gap-y-5'>
+            <div className='flex flex-col gap-y-4'>
               {!isLogin && (
+                <div className='transition-all duration-500 ease-in-out' 
+                     style={{
+                       opacity: isAnimating ? '0' : '1',
+                       transform: isAnimating ? 'translateY(-20px)' : 'translateY(0)',
+                     }}>
+                  <Textbox
+                    placeholder='Full Name'
+                    type='text'
+                    name='name'
+                    className='w-full rounded-lg bg-[#2d2d52] text-white border-none'
+                    register={register("name", {
+                      required: "Full name is required!",
+                      minLength: {
+                        value: 2,
+                        message: "Name must be at least 2 characters",
+                      },
+                    })}
+                    error={errors.name ? errors.name.message : ""}
+                  />
+                </div>
+              )}
+              <div className='transition-all duration-500 ease-in-out'
+                   style={{
+                     transform: `translateY(${isAnimating ? '-20px' : '0'})`,
+                     opacity: isAnimating ? '0' : '1',
+                   }}>
                 <Textbox
-                  placeholder='Your Name'
-                  type='text'
-                  name='name'
-                  label='Full Name'
-                  className='w-full rounded-full'
-                  register={register("name", {
-                    required: "Name is required!",
-                    minLength: {
-                      value: 2,
-                      message: "Name must be at least 2 characters",
+                  placeholder={isLogin ? 'Email Address' : 'Your Email'}
+                  type='email'
+                  name='email'
+                  className='w-full rounded-lg bg-[#2d2d52] text-white border-none'
+                  register={register("email", {
+                    required: "Email Address is required!",
+                    pattern: {
+                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                      message: "Invalid email address",
                     },
                   })}
-                  error={errors.name ? errors.name.message : ""}
+                  error={errors.email ? errors.email.message : ""}
                 />
-              )}
-              <Textbox
-                placeholder='email@example.com'
-                type='email'
-                name='email'
-                label='Email Address'
-                className='w-full rounded-full'
-                register={register("email", {
-                  required: "Email Address is required!",
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Invalid email address",
-                  },
-                })}
-                error={errors.email ? errors.email.message : ""}
-              />
-              <Textbox
-                placeholder='your password'
-                type='password'
-                name='password'
-                label='Password'
-                className='w-full rounded-full'
-                register={register("password", {
-                  required: "Password is required!",
-                  minLength: {
-                    value: 6,
-                    message: "Password must be at least 6 characters",
-                  },
-                })}
-                error={errors.password ? errors.password.message : ""}
-              />
+              </div>
+              <div className='transition-all duration-500 ease-in-out'
+                   style={{
+                     transform: `translateY(${isAnimating ? '-20px' : '0'})`,
+                     opacity: isAnimating ? '0' : '1',
+                   }}>
+                <Textbox
+                  placeholder='Password'
+                  type='password'
+                  name='password'
+                  className='w-full rounded-lg bg-[#2d2d52] text-white border-none'
+                  register={register("password", {
+                    required: "Password is required!",
+                    minLength: {
+                      value: 6,
+                      message: "Password must be at least 6 characters",
+                    },
+                  })}
+                  error={errors.password ? errors.password.message : ""}
+                />
+              </div>
 
               {isLogin && (
-                <span className='text-sm text-gray-500 hover:text-blue-600 hover:underline cursor-pointer'>
-                  Forget Password?
-                </span>
+                <div className='flex items-center justify-between transition-all duration-500 ease-in-out'
+                     style={{
+                       opacity: isAnimating ? '0' : '1',
+                       transform: `translateY(${isAnimating ? '-20px' : '0'})`,
+                     }}>
+                  <label className='flex items-center gap-2 cursor-pointer'>
+                    <input type='checkbox' className='w-4 h-4 rounded bg-[#2d2d52] border-none focus:ring-0 text-blue-600' />
+                    <span className='text-sm text-gray-400'>Remember me</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsForgotPasswordOpen(true)}
+                    className='text-sm text-blue-500 hover:text-blue-400 cursor-pointer transition-colors duration-300'
+                  >
+                    Forgot password?
+                  </button>
+                </div>
               )}
 
               <Button
                 type='submit'
-                label={isLoading ? 'Loading...' : (isLogin ? 'Login' : 'Sign Up')}
-                className='w-full h-10 bg-blue-700 text-white rounded-full disabled:opacity-50'
-                disabled={isLoading}
+                label={isLoading ? 'Loading...' : (isLogin ? 'LOGIN' : 'SIGN UP')}
+                className='w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-500 disabled:opacity-50 transform hover:scale-[1.02]'
+                disabled={isLoading || isAnimating}
               />
 
-              <p className='text-center text-sm text-gray-600'>
+              <p className='text-center text-sm text-gray-400 transition-all duration-500 ease-in-out'
+                 style={{
+                   opacity: isAnimating ? '0' : '1',
+                   transform: `translateY(${isAnimating ? '-20px' : '0'})`,
+                 }}>
                 {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
                 <span
                   onClick={toggleForm}
-                  className='text-blue-600 hover:underline cursor-pointer'
+                  className='text-blue-500 hover:text-blue-400 cursor-pointer transition-colors duration-300'
                 >
-                  {isLogin ? 'Sign Up' : 'Login'}
+                  {isLogin ? 'Sign up' : 'Login'}
                 </span>
               </p>
             </div>
           </form>
         </div>
+
+        {/* Right side gradient design */}
+        <div className='hidden md:flex flex-1 h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-purple-800 items-center justify-center'>
+          <div className='relative w-full max-w-2xl px-8'>
+            <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500 rounded-full filter blur-3xl opacity-30'></div>
+            <div className='absolute top-1/3 right-1/4 w-48 h-48 bg-purple-500 rounded-full filter blur-3xl opacity-30'></div>
+            <div className='relative z-10'>
+              <h2 className='text-5xl font-bold text-white mb-6 transition-all duration-500 ease-in-out'
+                  style={{
+                    opacity: isAnimating ? '0' : '1',
+                    transform: isAnimating ? 'translateY(-20px)' : 'translateY(0)',
+                  }}>
+                {isLogin ? 'Welcome Back!' : 'Join Us Today!'}
+              </h2>
+              <p className='text-lg text-gray-200 max-w-md transition-all duration-500 ease-in-out'
+                 style={{
+                   opacity: isAnimating ? '0' : '1',
+                   transform: isAnimating ? 'translateY(-20px)' : 'translateY(0)',
+                 }}>
+                {isLogin 
+                  ? 'Sign in to access your account and manage your tasks efficiently.'
+                  : 'Create an account to start managing your tasks and boost your productivity.'}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPassword 
+        isOpen={isForgotPasswordOpen}
+        onClose={() => setIsForgotPasswordOpen(false)}
+      />
     </div>
   );
 };

@@ -11,7 +11,6 @@ import { FaArrowsToDot } from "react-icons/fa6";
 import moment from "moment";
 import { summary } from "../assets/data";
 import clsx from "clsx";
-import { Chart } from "../components/Chart";
 import { BGS, PRIOTITYSTYELS, TASK_TYPE, getInitials } from "../utils";
 import UserInfo from "../components/UserInfo";
 
@@ -23,8 +22,8 @@ const TaskTable = ({ tasks }) => {
   };
 
   const TableHeader = () => (
-    <thead className='border-b border-gray-300 '>
-      <tr className='text-black text-left'>
+    <thead className='border-b border-white/20'>
+      <tr className='text-white text-left'>
         <th className='py-2'>Task Title</th>
         <th className='py-2'>Priority</th>
         <th className='py-2'>Team</th>
@@ -34,14 +33,14 @@ const TaskTable = ({ tasks }) => {
   );
 
   const TableRow = ({ task }) => (
-    <tr className='border-b border-gray-300 text-gray-600 hover:bg-gray-300/10'>
+    <tr className='border-b border-white/20 text-white/80 hover:bg-white/10'>
       <td className='py-2'>
         <div className='flex items-center gap-2'>
           <div
             className={clsx("w-4 h-4 rounded-full", TASK_TYPE[task.stage])}
           />
 
-          <p className='text-base text-black'>{task.title}</p>
+          <p className='text-base text-white'>{task.title}</p>
         </div>
       </td>
 
@@ -50,7 +49,7 @@ const TaskTable = ({ tasks }) => {
           <span className={clsx("text-lg", PRIOTITYSTYELS[task.priority])}>
             {ICONS[task.priority]}
           </span>
-          <span className='capitalize'>{task.priority}</span>
+          <span className='capitalize text-white'>{task.priority}</span>
         </div>
       </td>
 
@@ -70,7 +69,7 @@ const TaskTable = ({ tasks }) => {
         </div>
       </td>
       <td className='py-2 hidden md:block'>
-        <span className='text-base text-gray-600'>
+        <span className='text-base text-white/80'>
           {moment(task?.date).fromNow()}
         </span>
       </td>
@@ -78,7 +77,7 @@ const TaskTable = ({ tasks }) => {
   );
   return (
     <>
-      <div className='w-full md:w-2/3 bg-white px-2 md:px-4 pt-4 pb-4 shadow-md rounded'>
+      <div className='w-full md:w-2/3 bg-dark-card px-2 md:px-4 pt-4 pb-4 shadow-lg rounded-lg'>
         <table className='w-full'>
           <TableHeader />
           <tbody>
@@ -94,8 +93,8 @@ const TaskTable = ({ tasks }) => {
 
 const UserTable = ({ users }) => {
   const TableHeader = () => (
-    <thead className='border-b border-gray-300 '>
-      <tr className='text-black  text-left'>
+    <thead className='border-b border-white/20'>
+      <tr className='text-white text-left'>
         <th className='py-2'>Full Name</th>
         <th className='py-2'>Status</th>
         <th className='py-2'>Created At</th>
@@ -104,16 +103,16 @@ const UserTable = ({ users }) => {
   );
 
   const TableRow = ({ user }) => (
-    <tr className='border-b border-gray-200  text-gray-600 hover:bg-gray-400/10'>
+    <tr className='border-b border-white/20 text-white/80 hover:bg-white/10'>
       <td className='py-2'>
         <div className='flex items-center gap-3'>
-          <div className='w-9 h-9 rounded-full text-white flex items-center justify-center text-sm bg-violet-700'>
+          <div className='w-9 h-9 rounded-full text-white flex items-center justify-center text-sm bg-primary'>
             <span className='text-center'>{getInitials(user?.name)}</span>
           </div>
 
           <div>
-            <p> {user.name}</p>
-            <span className='text-xs text-black'>{user?.role}</span>
+            <p className='text-white'> {user.name}</p>
+            <span className='text-xs text-white/60'>{user?.role}</span>
           </div>
         </div>
       </td>
@@ -122,18 +121,18 @@ const UserTable = ({ users }) => {
         <p
           className={clsx(
             "w-fit px-3 py-1 rounded-full text-sm",
-            user?.isActive ? "bg-blue-200" : "bg-yellow-100"
+            user?.isActive ? "bg-green-500/20 text-green-400" : "bg-yellow-500/20 text-yellow-400"
           )}
         >
           {user?.isActive ? "Active" : "Disabled"}
         </p>
       </td>
-      <td className='py-2 text-sm'>{moment(user?.createdAt).fromNow()}</td>
+      <td className='py-2 text-sm text-white/80'>{moment(user?.createdAt).fromNow()}</td>
     </tr>
   );
 
   return (
-    <div className='w-full md:w-1/3 bg-white h-fit px-2 md:px-6 py-4 shadow-md rounded'>
+    <div className='w-full md:w-1/3 bg-dark-card h-fit px-2 md:px-6 py-4 shadow-lg rounded-lg'>
       <table className='w-full mb-5'>
         <TableHeader />
         <tbody>
@@ -145,6 +144,7 @@ const UserTable = ({ users }) => {
     </div>
   );
 };
+
 const Dashboard = () => {
   const totals = summary.tasks;
 
@@ -154,38 +154,38 @@ const Dashboard = () => {
       label: "TOTAL TASK",
       total: summary?.totalTasks || 0,
       icon: <FaNewspaper />,
-      bg: "bg-[#1d4ed8]",
+      bg: "bg-primary",
     },
     {
       _id: "2",
       label: "COMPLTED TASK",
       total: totals["completed"] || 0,
       icon: <MdAdminPanelSettings />,
-      bg: "bg-[#0f766e]",
+      bg: "bg-green-500",
     },
     {
       _id: "3",
       label: "TASK IN PROGRESS ",
       total: totals["in progress"] || 0,
       icon: <LuClipboardEdit />,
-      bg: "bg-[#f59e0b]",
+      bg: "bg-yellow-500",
     },
     {
       _id: "4",
       label: "TODOS",
       total: totals["todo"],
       icon: <FaArrowsToDot />,
-      bg: "bg-[#be185d]" || 0,
+      bg: "bg-blue-500",
     },
   ];
 
   const Card = ({ label, count, bg, icon }) => {
     return (
-      <div className='w-full h-32 bg-white p-5 shadow-md rounded-md flex items-center justify-between'>
+      <div className='w-full h-32 bg-dark-card p-5 shadow-lg rounded-lg flex items-center justify-between hover:shadow-xl transition-all duration-300'>
         <div className='h-full flex flex-1 flex-col justify-between'>
-          <p className='text-base text-gray-600'>{label}</p>
-          <span className='text-2xl font-semibold'>{count}</span>
-          <span className='text-sm text-gray-400'>{"110 last month"}</span>
+          <p className='text-base text-white/80'>{label}</p>
+          <span className='text-2xl font-semibold text-white'>{count}</span>
+          <span className='text-sm text-white/60'>{"110 last month"}</span>
         </div>
 
         <div
@@ -200,27 +200,15 @@ const Dashboard = () => {
     );
   };
   return (
-    <div classNamee='h-full py-4'>
+    <div className='h-full py-4'>
       <div className='grid grid-cols-1 md:grid-cols-4 gap-5'>
         {stats.map(({ icon, bg, label, total }, index) => (
           <Card key={index} icon={icon} bg={bg} label={label} count={total} />
         ))}
       </div>
 
-      <div className='w-full bg-white my-16 p-4 rounded shadow-sm'>
-        <h4 className='text-xl text-gray-600 font-semibold'>
-          Chart by Priority
-        </h4>
-        <Chart />
-      </div>
-
       <div className='w-full flex flex-col md:flex-row gap-4 2xl:gap-10 py-8'>
-        {/* /left */}
-
         <TaskTable tasks={summary.last10Task} />
-
-        {/* /right */}
-
         <UserTable users={summary.users} />
       </div>
     </div>

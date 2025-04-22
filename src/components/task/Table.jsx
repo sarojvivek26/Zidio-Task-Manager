@@ -5,6 +5,8 @@ import {
   MdKeyboardArrowDown,
   MdKeyboardArrowUp,
   MdKeyboardDoubleArrowUp,
+  MdEdit,
+  MdDelete,
 } from "react-icons/md";
 import { toast } from "sonner";
 import { BGS, PRIOTITYSTYELS, TASK_TYPE, formatDate } from "../../utils";
@@ -13,6 +15,7 @@ import { FaList } from "react-icons/fa";
 import UserInfo from "../UserInfo";
 import Button from "../Button";
 import ConfirmatioDialog from "../Dialogs";
+import AddTask from "./AddTask";
 
 const ICONS = {
   high: <MdKeyboardDoubleArrowUp />,
@@ -23,13 +26,23 @@ const ICONS = {
 const Table = ({ tasks }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
 
   const deleteClicks = (id) => {
     setSelected(id);
     setOpenDialog(true);
   };
 
-  const deleteHandler = () => {};
+  const deleteHandler = () => {
+    // TODO: Implement delete functionality
+    setOpenDialog(false);
+  };
+
+  const handleEdit = (task) => {
+    setSelectedTask(task);
+    setOpenEdit(true);
+  };
 
   const TableHeader = () => (
     <thead className='w-full border-b border-gray-300'>
@@ -39,12 +52,13 @@ const Table = ({ tasks }) => {
         <th className='py-2 line-clamp-1'>Created At</th>
         <th className='py-2'>Assets</th>
         <th className='py-2'>Team</th>
+        <th className='py-2'>Actions</th>
       </tr>
     </thead>
   );
 
   const TableRow = ({ task }) => (
-    <tr className='border-b border-gray-200 text-gray-600 hover:bg-gray-300/10'>
+    <tr className='border-b border-gray-200 text-black hover:bg-gray-300/10'>
       <td className='py-2'>
         <div className='flex items-center gap-2'>
           <div
@@ -108,25 +122,29 @@ const Table = ({ tasks }) => {
 
       <td className='py-2 flex gap-2 md:gap-4 justify-end'>
         <Button
+          onClick={() => handleEdit(task)}
           className='text-blue-600 hover:text-blue-500 sm:px-0 text-sm md:text-base'
+          icon={<MdEdit className='text-lg' />}
           label='Edit'
           type='button'
         />
 
         <Button
+          onClick={() => deleteClicks(task._id)}
           className='text-red-700 hover:text-red-500 sm:px-0 text-sm md:text-base'
+          icon={<MdDelete className='text-lg' />}
           label='Delete'
           type='button'
-          onClick={() => deleteClicks(task._id)}
         />
       </td>
     </tr>
   );
+
   return (
     <>
-      <div className='bg-white  px-2 md:px-4 pt-4 pb-9 shadow-md rounded'>
+      <div className='bg-gray-200 px-2 md:px-4 pt-4 pb-9 shadow-md rounded'>
         <div className='overflow-x-auto'>
-          <table className='w-full '>
+          <table className='w-full'>
             <TableHeader />
             <tbody>
               {tasks.map((task, index) => (
@@ -137,7 +155,12 @@ const Table = ({ tasks }) => {
         </div>
       </div>
 
-      {/* TODO */}
+      <AddTask
+        open={openEdit}
+        setOpen={setOpenEdit}
+        task={selectedTask}
+      />
+
       <ConfirmatioDialog
         open={openDialog}
         setOpen={setOpenDialog}

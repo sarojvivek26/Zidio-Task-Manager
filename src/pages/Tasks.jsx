@@ -12,6 +12,7 @@ import BoardView from "../components/BoardView";
 import { tasks } from "../assets/data";
 import Table from "../components/task/Table";
 import AddTask from "../components/task/AddTask";
+import TaskCard from "../components/TaskCard";
 
 const TABS = [
   { title: "Board View", icon: <MdGridView /> },
@@ -26,12 +27,26 @@ const TASK_TYPE = {
 
 const Tasks = () => {
   const params = useParams();
-
   const [selected, setSelected] = useState(0);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const status = params?.status || "";
+
+  // Filter tasks based on status
+  const filteredTasks = React.useMemo(() => {
+    if (!status) return tasks;
+    return tasks.filter((task) => task.stage.toLowerCase() === status.toLowerCase());
+  }, [status, tasks]);
+
+  // Group tasks by status for board view
+  const groupedTasks = React.useMemo(() => {
+    return {
+      todo: tasks.filter((task) => task.stage === "todo"),
+      "in progress": tasks.filter((task) => task.stage === "in progress"),
+      completed: tasks.filter((task) => task.stage === "completed"),
+    };
+  }, [tasks]);
 
   return loading ? (
     <div className='py-10'>
@@ -40,7 +55,7 @@ const Tasks = () => {
   ) : (
     <div className='w-full'>
       <div className='flex items-center justify-between mb-4'>
-        <Title title={status ? `${status} Tasks` : "Tasks"} />
+        <Title title={status ? `${status.charAt(0).toUpperCase() + status.slice(1)} Tasks` : "Tasks"} />
 
         {!status && (
           <Button
@@ -60,15 +75,44 @@ const Tasks = () => {
               label='In Progress'
               className={TASK_TYPE["in progress"]}
             />
-            <TaskTitle label='completed' className={TASK_TYPE.completed} />
+            <TaskTitle label='Completed' className={TASK_TYPE.completed} />
           </div>
         )}
 
         {selected !== 1 ? (
-          <BoardView tasks={tasks} />
+          <div className='w-full py-4'>
+            {!status ? (
+              <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 2xl:gap-10'>
+                <div className='space-y-4'>
+                  <h3 className='text-lg font-semibold text-white mb-2'>To Do</h3>
+                  {groupedTasks.todo.map((task, index) => (
+                    <TaskCard task={task} key={index} />
+                  ))}
+                </div>
+                <div className='space-y-4'>
+                  <h3 className='text-lg font-semibold text-white mb-2'>In Progress</h3>
+                  {groupedTasks["in progress"].map((task, index) => (
+                    <TaskCard task={task} key={index} />
+                  ))}
+                </div>
+                <div className='space-y-4'>
+                  <h3 className='text-lg font-semibold text-white mb-2'>Completed</h3>
+                  {groupedTasks.completed.map((task, index) => (
+                    <TaskCard task={task} key={index} />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 2xl:gap-10'>
+                {filteredTasks.map((task, index) => (
+                  <TaskCard task={task} key={index} />
+                ))}
+              </div>
+            )}
+          </div>
         ) : (
           <div className='w-full'>
-            <Table tasks={tasks} />
+            <Table tasks={filteredTasks} />
           </div>
         )}
       </Tabs>
